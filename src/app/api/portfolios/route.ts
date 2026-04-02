@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/db";
+import { portfolios, holdings } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-export async function GET(_req: Request) {
-  const portfolios = await prisma.portfolio.findMany({
-    include: { holdings: true },
+export async function GET() {
+  const data = await db.query.portfolios.findMany({
+    with: { holdings: true },
   });
-  return NextResponse.json(portfolios);
+  return NextResponse.json(data);
 }
 
 export async function POST(req: Request) {
   const { name, userId } = await req.json();
-  const portfolio = await prisma.portfolio.create({
-    data: { name, userId },
-  });
-  return NextResponse.json(portfolio, { status: 201 });
+  const result = await db
+    .insert(portfolios)
+    .values({ name, userId })
+    .returning();
+  return NextResponse.json(result[0], { status: 201 });
 }
