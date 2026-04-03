@@ -1,7 +1,11 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
+import path from "path";
 import * as schema from "./schema";
 
-const client = postgres(process.env.DATABASE_URL!);
+const dbPath = path.join(process.cwd(), "data", "portfolio.db");
 
-export const db = drizzle(client, { schema });
+const sqlite = new Database(dbPath);
+sqlite.pragma("foreign_keys = ON");
+
+export const db = drizzle(sqlite, { schema });
