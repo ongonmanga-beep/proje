@@ -55,10 +55,10 @@ export default function Home() {
       </section>
       <section className={styles.list}>
         {portfolios.map((p) => (
-          <div key={p.id} className={styles.card}>
+          <a key={p.id} href={`/portfolios/${p.id}`} className={styles.card}>
             <strong>{p.name}</strong>
-            <small>{p.holdings?.length || 0} varlık</small>
-          </div>
+            <small>{p.holdings?.length || 0} varlık →</small>
+          </a>
         ))}
       </section>
     </main>

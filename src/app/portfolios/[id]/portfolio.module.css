@@ -1,0 +1,71 @@
+.main {
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.back {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+.card {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input, .btn {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.btn {
+  margin-top: 0.5rem;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.total {
+  font-size: 1.125rem;
+  padding: 0.75rem;
+  background: #ecfdf5;
+  border-radius: 12px;
+  margin: 0.75rem 0;
+}
+
+.sym {
+  font-weight: 700;
+  width: 80px;
+}
+
+.meta {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #444;
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #e5e7eb;
+}
