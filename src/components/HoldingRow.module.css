@@ -1,0 +1,46 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.sym {
+  font-weight: 700;
+  font-size: 0.875rem;
+  width: 90px;
+}
+
+.meta {
+  flex: 1;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.gain {
+  color: #16a34a;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.loss {
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #f3f4f6;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
