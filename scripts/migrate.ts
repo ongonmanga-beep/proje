@@ -1,36 +1,39 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
-import * as schema from "./schema";
 
 const dbPath = path.join(process.cwd(), "data", "portfolio.db");
-
 const dbDir = path.dirname(dbPath);
+
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
+}
+
+// Delete old DB and recreate
+if (fs.existsSync(dbPath)) {
+  fs.unlinkSync(dbPath);
+  console.log("Eski DB silindi:", dbPath);
 }
 
 const sqlite = new Database(dbPath);
 sqlite.pragma("foreign_keys = ON");
 
-// Auto-create tables if they don't exist
 sqlite.exec(`
-  CREATE TABLE IF NOT EXISTS users (
+  CREATE TABLE users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     name TEXT,
     created_at INTEGER DEFAULT (strftime('%s', 'now'))
   );
 
-  CREATE TABLE IF NOT EXISTS portfolios (
+  CREATE TABLE portfolios (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     user_id TEXT NOT NULL REFERENCES users(id),
     created_at INTEGER DEFAULT (strftime('%s', 'now'))
   );
 
-  CREATE TABLE IF NOT EXISTS holdings (
+  CREATE TABLE holdings (
     id TEXT PRIMARY KEY,
     symbol TEXT NOT NULL,
     quantity REAL NOT NULL,
@@ -41,4 +44,5 @@ sqlite.exec(`
   );
 `);
 
-export const db = drizzle(sqlite, { schema });
+console.log("Tablolar oluşturuldu.");
+sqlite.close();
