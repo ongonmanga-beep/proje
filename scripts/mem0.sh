@@ -4,7 +4,7 @@ python3 - "$@" << 'PYEOF'
 import sys, json
 from mem0 import MemoryClient
 
-client = MemoryClient(api_key="m0-U7hWdGnl80kPURgle3CIq0JBkTGYSb72yPo0qPLC")
+client = MemoryClient(api_key="m0-2TOqmBcfobG5FpM7qKH7fPjVCQj8kSC8PFTzWXKy")
 action = sys.argv[1]
 
 if action == "add":
