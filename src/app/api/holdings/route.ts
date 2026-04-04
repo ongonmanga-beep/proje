@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   const data = await db.query.holdings.findMany({
     where: eq(holdings.portfolioId, portfolioId),
   });
-  return NextResponse.json(data);
+  return NextResponse.json(data, { status: 200 });
 }
 
 export async function POST(req: Request) {
