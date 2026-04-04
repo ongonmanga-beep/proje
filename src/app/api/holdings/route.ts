@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const { symbol, quantity, buyPrice, portfolioId, type } = await req.json();
   const result = await db
     .insert(holdings)
-    .values({ symbol, quantity, buyPrice, portfolioId, type })
+    .values({ symbol, quantity, avgBuyPrice: buyPrice, portfolioId, type })
     .returning();
   return NextResponse.json(result[0], { status: 201 });
 }
