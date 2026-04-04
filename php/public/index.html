@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portföy Takip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div x-data="app()" class="max-w-md mx-auto px-4 py-6">
+    <template x-if="!user">
+        <div>
+            <h1 class="text-2xl font-bold mb-6">Portföy Takip</h1>
+            <template x-if="showLogin">
+                <div class="bg-white rounded-xl border p-5 space-y-3">
+                    <h3 class="font-semibold">Giriş</h3>
+                    <input x-model="form.email" type="email" placeholder="E-posta" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    <input x-model="form.pass" type="password" placeholder="Şifre" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    <button @click="login()" class="w-full bg-black text-white py-2.5 rounded-lg text-sm font-semibold">Giriş</button>
+                    <button @click="showLogin=false" class="w-full text-sm text-gray-500 mt-2">← Geri</button>
+                </div>
+            </template>
+            <template x-if="!showLogin">
+                <div>
+                    <template x-for="u in users" :key="u.id">
+                        <button @click="selectUser(u)" class="w-full bg-white rounded-xl border p-4 mb-2 text-left hover:shadow">
+                            <div class="font-semibold" x-text="u.name || u.email"></div>
+                            <div class="text-sm text-gray-500" x-text="u.email"></div>
+                        </button>
+                    </template>
+                    <button @click="showLogin=true" class="w-full bg-black text-white py-2.5 rounded-lg text-sm font-semibold">+ Yeni Hesap</button>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <template x-if="user">
+        <div>
+            <div class="flex justify-between mb-6">
+                <button @click="user=null" class="text-sm text-gray-500">← Çıkış</button>
+                <button @click="addPortfolio()" class="text-sm bg-black text-white px-4 py-2 rounded-lg">+ Portföy</button>
+            </div>
+            <h1 class="text-xl font-bold mb-4">Portföylerim</h1>
+            <template x-if="portfolios.length === 0">
+                <p class="text-gray-400 text-center py-8">Henüz yok</p>
+            </template>
+            <template x-for="p in portfolios" :key="p.id">
+                <a :href="'/portfolio.html?id=' + p.id" class="block bg-white rounded-xl border p-4 mb-2 flex justify-between hover:shadow">
+                    <div><div class="font-semibold" x-text="p.name"></div><div class="text-sm text-gray-500">Detay →</div></div>
+                </a>
+            </template>
+        </div>
+    </template>
+</div>
+
+<script>
+function app() {
+    return {
+        user: null, users: [], portfolios: [],
+        showLogin: false, form: { email: '', pass: '' },
+        async init() { this.users = await (await fetch('/api/users')).json(); },
+        async selectUser(u) { this.user = u; this.portfolios = await (await fetch('/api/portfolios?userId=' + u.id)).json(); },
+        async login() {
+            const r = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:this.form.email, password_hash: btoa(this.form.pass) })});
+            const u = await r.json(); if (u.id) { this.user = u; this.users.push(u); await this.selectUser(u); }
+        },
+        async addPortfolio() { const n = prompt('Ad:'); if (!n) return; const r = await fetch('/api/portfolios', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ userId:this.user.id, name:n })}); if (r.ok) this.portfolios.push(await r.json()); }
+    };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portföy Detay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div x-data="app()" x-init="init()" class="max-w-md mx-auto px-4 py-6">
+    <a href="/" class="text-sm text-gray-500">← Portföyler</a>
+    <h1 class="text-xl font-bold mb-4 mt-2">Varlıklar</h1>
+
+    <div class="bg-white rounded-xl border p-4 space-y-2 mb-4">
+        <select x-model="form.type" class="w-full px-3 py-2 border rounded-lg text-sm">
+            <option value="stock">Hisse</option>
+            <option value="crypto">Kripto</option>
+            <option value="fund">Fon</option>
+        </select>
+        <input x-model="form.symbol" placeholder="Sembol" class="w-full px-3 py-2 border rounded-lg text-sm">
+        <div class="grid grid-cols-2 gap-2">
+            <input x-model="form.qty" type="number" placeholder="Adet" class="px-3 py-2 border rounded-lg text-sm">
+            <input x-model="form.price" type="number" placeholder="Fiyat" class="px-3 py-2 border rounded-lg text-sm">
+        </div>
+        <button @click="add()" class="w-full bg-black text-white py-2.5 rounded-lg text-sm font-semibold">Ekle</button>
+    </div>
+
+    <div class="bg-white rounded-xl border p-4 mb-4" :class="change >= 0 ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'">
+        <div class="text-lg">Maliyet: <strong x-text="cost.toFixed(2)"></strong> ₺</div>
+        <div class="text-sm mt-1" :class="change >= 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
+            Değer: <span x-text="val.toFixed(2)"></span> ₺ <span x-text="(change >= 0 ? '+' : '') + change.toFixed(2) + '%'"></span>
+        </div>
+    </div>
+
+    <template x-if="holdings.length === 0">
+        <p class="text-gray-400 text-center py-6">Varlık yok</p>
+    </template>
+    <template x-for="h in holdings" :key="h.id">
+        <div class="flex items-center gap-3 py-3 border-b border-gray-100">
+            <span class="font-bold text-sm w-20" x-text="h.symbol"></span>
+            <span class="flex-1 text-sm text-gray-500" x-text="h.quantity + ' × ' + h.avg_buy_price"></span>
+            <span class="text-xs font-semibold" :class="h.current_price && h.current_price >= h.avg_buy_price ? 'text-green-600' : 'text-red-600'"
+                  x-text="h.current_price ? ((h.current_price - h.avg_buy_price)/h.avg_buy_price*100).toFixed(2)+'%' : '-'"></span>
+            <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-500" x-text="h.type"></span>
+        </div>
+    </template>
+</div>
+
+<script>
+function app() {
+    return {
+        pid: new URLSearchParams(location.search).get('id'),
+        holdings: [], form: { symbol: '', qty: '', price: '', type: 'stock' },
+        cost: 0, val: 0, change: 0,
+        async init() {
+            if (!this.pid) return;
+            this.holdings = await (await fetch('/api/holdings?portfolioId=' + this.pid)).json();
+            this.calc();
+            await this.loadPrices();
+        },
+        async add() {
+            if (!this.form.symbol) return;
+            const r = await fetch('/api/holdings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ portfolioId:this.pid, symbol:this.form.symbol, type:this.form.type, quantity:+this.form.qty, buyPrice:+this.form.price })});
+            if (r.ok) { this.holdings.push(await r.json()); this.form = { symbol:'', qty:'', price:'', type:'stock' }; this.calc(); }
+        },
+        async loadPrices() {
+            const cryptos = this.holdings.filter(h => h.type === 'crypto').map(h => h.symbol.toLowerCase());
+            if (cryptos.length === 0) return;
+            try {
+                const d = await (await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + cryptos.join(',') + '&vs_currencies=usd')).json();
+                for (let h of this.holdings) {
+                    if (h.type === 'crypto' && d[h.symbol.toLowerCase()]?.usd) h.current_price = d[h.symbol.toLowerCase()].usd;
+                }
+                this.calc();
+            } catch(e) {}
+        },
+        calc() {
+            this.cost = this.holdings.reduce((s, h) => s + h.quantity * h.avg_buy_price, 0);
+            this.val = this.holdings.reduce((s, h) => s + h.quantity * (h.current_price || h.avg_buy_price), 0);
+            this.change = this.cost > 0 ? ((this.val - this.cost) / this.cost) * 100 : 0;
+        }
+    };
+}
+</script>
+</body>
+</html>
