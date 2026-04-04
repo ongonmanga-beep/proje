@@ -86,7 +86,8 @@ function Dashboard({ userId, onLogout }: { userId: string; onLogout: () => void 
       body: JSON.stringify({ name, userId }),
     });
     if (res.ok) {
-      setPortfolios((prev) => [...prev, await res.json()]);
+      const p = await res.json();
+      setPortfolios((prev) => [...prev, p]);
     }
   };
 
