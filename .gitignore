@@ -1,0 +1,21 @@
+# API Keys
+*.key
+*.secret
+*.token
+
+# Sensitive data
+mem0*.json
+mem0_backup_*.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# OpenClaw
+.openclaw/
+
+# Logs
+*.log
